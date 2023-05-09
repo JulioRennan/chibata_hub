@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "596292558515",
+    "project_id": "chibata-hub",
+    "storage_bucket": "chibata-hub.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:596292558515:android:339ff775fc82a37d021ac6",
+        "android_client_info": {
+          "package_name": "com.example.chibata_hub"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "596292558515-5pia3686ambvplt9eroa0u68vtbf3q4u.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB0XWezXNZZNyo4LBa5huohi4LeOwCjmBY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "596292558515-5pia3686ambvplt9eroa0u68vtbf3q4u.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
