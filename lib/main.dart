@@ -1,6 +1,7 @@
 import 'package:chibata_hub/core/theme/app_colors.dart';
 import 'package:chibata_hub/modules/home/home_page.dart';
 import 'package:chibata_hub/modules/sign/sign_page.dart';
+import 'package:chibata_hub/modules/video/video_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

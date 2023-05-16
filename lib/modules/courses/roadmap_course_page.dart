@@ -1,8 +1,15 @@
+import 'package:chibata_hub/core/shared_components/buttons/primary_button.dart';
+import 'package:chibata_hub/core/shared_components/custom_checkbox.dart';
+import 'package:chibata_hub/core/theme/app_colors.dart';
+import 'package:chibata_hub/modules/courses/widgets/dialog_about_class.dart';
 import 'package:chibata_hub/modules/home/widgets/circle_roadmap.dart';
+import 'package:chibata_hub/modules/video/video_page.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
+
+import 'package:get/get.dart';
 
 class RoadmapCoursePage extends StatefulWidget {
   const RoadmapCoursePage({super.key});
@@ -65,7 +72,12 @@ class _RoadmapCoursePageState extends State<RoadmapCoursePage> {
                       index: index,
                       isViewed: false,
                       isVideo: false,
-                      onPressed: (){},
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => const DialogAboutClass(),
+                        );
+                      },
                     ),
                   );
                 },
