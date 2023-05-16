@@ -1,15 +1,13 @@
 import 'package:chibata_hub/core/theme/app_colors.dart';
+import 'package:chibata_hub/modules/afd/afd_controller.dart';
 import 'package:chibata_hub/modules/afd/widgets/card_afd.dart';
 import 'package:chibata_hub/modules/chat_afd/chat_afd_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
 
-import 'widgets/circle_afd.dart';
-
 class AFDPage extends StatelessWidget {
-  const AFDPage({super.key});
+  AFDPage({super.key});
+  final controller = Get.put(AFDController());
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +15,7 @@ class AFDPage extends StatelessWidget {
       body: Column(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
@@ -54,15 +52,15 @@ class AFDPage extends StatelessWidget {
                           children: [
                             Expanded(
                               child: InkWell(
-                                onTap: () {},
+                                onTap: controller.addAFD,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Container(
                                       width: 50,
                                       height: 50,
-                                      padding: EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: const BoxDecoration(
                                         shape: BoxShape.circle,
                                         color: Colors.white,
                                       ),
@@ -83,7 +81,7 @@ class AFDPage extends StatelessWidget {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: 4),
+                                    const SizedBox(height: 4),
                                     Text(
                                       "Adicionar",
                                       style: StyleThemes.button
@@ -125,14 +123,26 @@ class AFDPage extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ListView(
-              children: const [
-                CardAFD(),
-                SizedBox(height: 10),
-                CardAFD(),
-                SizedBox(height: 10),
-                CardAFD(),
-              ],
+            child: GetBuilder(
+              init: controller,
+              builder: (context) {
+                if (controller.listAfds.isEmpty) {
+                  return Center(
+                    child: Text(
+                      "Adicione algum automato para iniciar",
+                      style: StyleThemes.body.withColor(AppColors.primaryColor),
+                    ),
+                  );
+                }
+                return ListView(
+                  children: [
+                    for (var afd in controller.listAfds) ...[
+                      CardAFD(afd: afd),
+                      const SizedBox(height: 10)
+                    ],
+                  ],
+                );
+              },
             ),
           ),
         ],

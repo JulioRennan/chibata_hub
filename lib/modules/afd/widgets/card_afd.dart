@@ -1,32 +1,39 @@
+import 'package:chibata_hub/core/domain/entities/afd_entity.dart';
+import 'package:chibata_hub/core/shared_components/custom_checkbox.dart';
+import 'package:chibata_hub/modules/afd/afd_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
+import 'package:get/get.dart';
 
 import '../../../core/theme/app_colors.dart';
 import 'circle_afd.dart';
 
 class CardAFD extends StatelessWidget {
-  const CardAFD({super.key});
-
+  const CardAFD({
+    super.key,
+    required this.afd,
+  });
+  final AFDEntity afd;
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 5,
-      margin: EdgeInsets.symmetric(horizontal: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 8),
       child: Container(
         height: 120,
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         child: Stack(
           children: [
             Positioned(
               top: 0,
               right: 5,
               child: InkWell(
-                child: Icon(
+                child: const Icon(
                   Icons.close,
                   color: Colors.redAccent,
                 ),
-                onTap: () {},
+                onTap: () => Get.find<AFDController>().removeAFD(afd),
               ),
             ),
             Positioned(
@@ -34,24 +41,17 @@ class CardAFD extends StatelessWidget {
               right: -5,
               child: Row(
                 children: [
-                  Text(
+                  const Text(
                     'QFinal',
                     style: TextStyle(
                       color: AppColors.primaryColor,
                     ),
                   ),
-                  Checkbox(
-                    value: false,
-                    checkColor: Colors.white,
-                    activeColor: AppColors.primaryColor,
-                    fillColor: MaterialStatePropertyAll(
-                      AppColors.primaryColor,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    onChanged: (_) {},
+                  CustomCheckbox(
+                    intialValue: afd.isFinal,
+                    onChanged: (value) {
+                      afd.isFinal = value ?? false;
+                    },
                   )
                 ],
               ),
@@ -79,7 +79,7 @@ class CardAFD extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    "Qn",
+                    "Q${afd.state}",
                     style: StyleThemes.button.withColor(
                       AppColors.primaryColor,
                     ),
@@ -90,18 +90,26 @@ class CardAFD extends StatelessWidget {
             Positioned(
               top: 0,
               left: 170,
-              child: const CircleAFD(),
+              child: CircleAFD(
+                afdDepence: afd.when0,
+                afdCurrent: afd,
+                state: '0',
+              ),
             ),
             Positioned(
               bottom: 0,
               left: 170,
-              child: const CircleAFD(),
+              child: CircleAFD(
+                afdDepence: afd.when1,
+                afdCurrent: afd,
+                state: '1',
+              ),
             ),
             Positioned(
               bottom: 82,
               left: 135,
               child: Text(
-                "1",
+                "0",
                 style: StyleThemes.button,
               ),
             ),

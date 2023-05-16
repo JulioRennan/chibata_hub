@@ -18,7 +18,7 @@ class BodyInteractions extends StatelessWidget {
           imageUrl: "assets/images/automato_image.png",
           title: "Automatos finitos deterministicos (AFD)",
           subtitle: "Crie  e teste seus AFDS em tempo real",
-          onTap: () => Get.to(() => const AFDPage()),
+          onTap: () => Get.to(() => AFDPage()),
         ),
       ],
     );
