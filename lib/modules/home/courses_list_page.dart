@@ -5,13 +5,18 @@ import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
 
 import '../../core/theme/app_colors.dart';
+import 'home_controller.dart';
 import 'widgets/card_items.dart';
 
 class CoursesListPage extends StatelessWidget {
-  const CoursesListPage({super.key});
+  const CoursesListPage({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<HomeController>();
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: true,
@@ -20,19 +25,29 @@ class CoursesListPage extends StatelessWidget {
           style: StyleThemes.title.withColor(Colors.white),
         ),
       ),
-      body: ListView(
-        children: [
-          CardItems(
-            imageUrl:
-                "https://static.vecteezy.com/system/resources/previews/022/100/686/original/java-logo-transparent-free-png.png",
-            title: "POO com Java",
-            subtitle: "Princípios de orientação utilizando JAVA.",
-            onTap: () => Get.to(
-              () => RoadmapCoursePage(),
-            ),
-          ),
-        ],
-      ),
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return ListView(
+          children: [
+            for (var course in controller.listCourses)
+              CardItems(
+                imageUrl: course['imageUrl'],
+                title: course['title'],
+                subtitle: course['subtitle'],
+                onTap: () {
+                  controller.loadClasses(course['id']);
+                  Get.to(
+                    () => RoadmapCoursePage(),
+                  );
+                },
+              ),
+          ],
+        );
+      }),
     );
   }
 }

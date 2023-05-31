@@ -1,14 +1,7 @@
-import 'package:chibata_hub/core/shared_components/buttons/primary_button.dart';
-import 'package:chibata_hub/core/shared_components/custom_checkbox.dart';
-import 'package:chibata_hub/core/theme/app_colors.dart';
 import 'package:chibata_hub/modules/courses/widgets/dialog_about_class.dart';
+import 'package:chibata_hub/modules/home/home_controller.dart';
 import 'package:chibata_hub/modules/home/widgets/circle_roadmap.dart';
-import 'package:chibata_hub/modules/video/video_page.dart';
-import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
-import 'dart:ui' as ui;
-
 import 'package:get/get.dart';
 
 class RoadmapCoursePage extends StatefulWidget {
@@ -21,7 +14,7 @@ class RoadmapCoursePage extends StatefulWidget {
 class _RoadmapCoursePageState extends State<RoadmapCoursePage> {
   bool isLeftFromRight = true;
   List<Offset> pointsWidgets = [];
-
+  final controller = Get.find<HomeController>();
   @override
   void initState() {
     super.initState();
@@ -29,63 +22,78 @@ class _RoadmapCoursePageState extends State<RoadmapCoursePage> {
 
   @override
   Widget build(BuildContext context) {
-    pointsWidgets.clear();
-    List.generate(
-      5,
-      (index) {
-        final left = calcPosition(context, index);
-        final top = index * 100;
-        pointsWidgets.add(Offset(left + 40, top.toDouble() + 40));
-      },
-    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Trilha POO com Java'),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          height: 6 * 100,
-          padding: const EdgeInsets.symmetric(vertical: 10),
-          child: Stack(
-            children: [
-              Positioned(
-                child: CustomPaint(
-                  size: Size(
-                    MediaQuery.of(context).size.width,
-                    6 * 100,
-                  ),
-                  painter: LinesPainter(pointsWidgets),
-                ),
-              ),
-              ...List.generate(
-                5,
-                (index) {
-                  if (index % 3 == 0) {
-                    isLeftFromRight = !isLeftFromRight;
-                  }
-                  final left = calcPosition(context, index);
-                  final top = index * 100;
-                  return Positioned(
-                    left: left,
-                    top: top.toDouble(),
-                    child: CircleRoadmap(
-                      index: index,
-                      isViewed: false,
-                      isVideo: false,
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (_) => const DialogAboutClass(),
-                        );
-                      },
+      body: Obx(() {
+        if (controller.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        pointsWidgets.clear();
+        List.generate(
+          tamItens,
+          (index) {
+            final left = calcPosition(context, index);
+            final top = index * 100;
+            pointsWidgets.add(Offset(left + 40, top.toDouble() + 40));
+          },
+        );
+        return SingleChildScrollView(
+          child: Container(
+            height: (tamItens + 1) * 100,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Stack(
+              children: [
+                Positioned(
+                  child: CustomPaint(
+                    size: Size(
+                      MediaQuery.of(context).size.width,
+                      (tamItens + 1) * 100,
                     ),
-                  );
-                },
-              )
-            ],
+                    painter: LinesPainter(pointsWidgets),
+                  ),
+                ),
+                ...List.generate(
+                  tamItens,
+                  (index) {
+                    if (index % 3 == 0) {
+                      isLeftFromRight = !isLeftFromRight;
+                    }
+                    final left = calcPosition(context, index);
+                    final top = index * 100;
+                    final currentRoadmap = controller.listClasses[index];
+                    return Positioned(
+                      left: left,
+                      top: top.toDouble(),
+                      child: CircleRoadmap(
+                        index: index + 1,
+                        isViewed: false,
+                        isVideo: currentRoadmap['isVideo'],
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => DialogAboutClass(
+                              title: 'Aula $index',
+                              message: currentRoadmap['description'],
+                              isVideo: currentRoadmap['isVideo'],
+                              link: currentRoadmap['link'],
+                              annotations: currentRoadmap['annotations'] ?? '',
+                              index: index,
+                            ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                )
+              ],
+            ),
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 
@@ -95,6 +103,8 @@ class _RoadmapCoursePageState extends State<RoadmapCoursePage> {
     final screenWidth = MediaQuery.of(context).size.width;
     return (screenWidth / 3) * (positions[index % tam] + 1) - 100;
   }
+
+  int get tamItens => controller.listClasses.length;
 }
 
 class LinesPainter extends CustomPainter {

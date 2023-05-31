@@ -1,6 +1,7 @@
 import 'package:chibata_hub/core/theme/app_colors.dart';
 import 'package:chibata_hub/modules/home/body_interactions.dart';
 import 'package:chibata_hub/modules/home/body_videos.dart';
+import 'package:chibata_hub/modules/home/home_controller.dart';
 import 'package:chibata_hub/modules/home/widgets/card_items.dart';
 import 'package:chibata_hub/modules/sign/sign_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,6 +17,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int index = 0;
+  final controller = Get.put(HomeController());
+  @override
+  void initState() {
+    super.initState();
+    controller.loadAreas();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,7 +44,16 @@ class _HomePageState extends State<HomePage> {
           )
         ],
       ),
-      body: index == 0 ? BodyVideos() : BodyInteractions(),
+      body: index == 0
+          ? Obx(() {
+              if (controller.isLoading.value) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              return BodyVideos();
+            })
+          : BodyInteractions(),
       bottomNavigationBar: Container(
         height: 80,
         decoration: const BoxDecoration(

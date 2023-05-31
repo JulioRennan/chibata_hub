@@ -1,6 +1,5 @@
+import 'package:chibata_hub/modules/courses/article_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:get/get.dart';
 
 import '../../../core/shared_components/buttons/primary_button.dart';
@@ -9,8 +8,21 @@ import '../../../core/theme/app_colors.dart';
 import '../../video/video_page.dart';
 
 class DialogAboutClass extends StatelessWidget {
-  const DialogAboutClass({super.key});
-
+  const DialogAboutClass({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.isVideo,
+    required this.link,
+    required this.annotations,
+    required this.index,
+  });
+  final String title;
+  final String message;
+  final bool isVideo;
+  final String link;
+  final String annotations;
+  final int index;
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -27,7 +39,7 @@ class DialogAboutClass extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              "Aula 2",
+              title,
               style: StyleThemes.subtitle.withColor(
                 AppColors.primaryColor,
               ),
@@ -42,9 +54,7 @@ class DialogAboutClass extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              "O que é um objeto? como declarar usando Java?",
-            ),
+            Text(message),
             SizedBox(height: 12),
             SizedBox(
               height: 30,
@@ -52,7 +62,21 @@ class DialogAboutClass extends StatelessWidget {
               child: PrimaryButton(
                 child: Text("Vamos lá"),
                 onPressed: () {
-                  Get.off(() => VideoPage());
+                  if (isVideo) {
+                    Get.off(
+                      () => VideoPage(
+                        annotations: annotations,
+                        linkVideo: link,
+                        index: index,
+                      ),
+                    );
+                  } else {
+                    Get.off(
+                      () => ArticlePage(
+                        link: link,
+                      ),
+                    );
+                  }
                 },
               ),
             ),
