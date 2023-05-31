@@ -1,4 +1,5 @@
 import 'package:chibata_hub/modules/courses/article_page.dart';
+import 'package:chibata_hub/modules/home/home_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,6 +17,7 @@ class DialogAboutClass extends StatelessWidget {
     required this.link,
     required this.annotations,
     required this.index,
+    required this.uid,
   });
   final String title;
   final String message;
@@ -23,6 +25,7 @@ class DialogAboutClass extends StatelessWidget {
   final String link;
   final String annotations;
   final int index;
+  final String uid;
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -45,8 +48,19 @@ class DialogAboutClass extends StatelessWidget {
               ),
             ),
           ),
-          CustomCheckbox(
-            intialValue: false,
+          GetBuilder<HomeController>(
+            builder: (context) {
+              return CustomCheckbox(
+                intialValue:
+                    Get.find<HomeController>().listVideoViewers.contains(uid),
+                onChanged: (value) {
+                  if (value ?? false) {
+                    return Get.find<HomeController>().addViewer(uid);
+                  }
+                  return Get.find<HomeController>().removeViewer(uid);
+                },
+              );
+            },
           )
         ],
       ),

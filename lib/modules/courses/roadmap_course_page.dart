@@ -26,74 +26,86 @@ class _RoadmapCoursePageState extends State<RoadmapCoursePage> {
       appBar: AppBar(
         title: const Text('Trilha POO com Java'),
       ),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(),
+      body: Obx(
+        () {
+          if (controller.isLoading.value) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          pointsWidgets.clear();
+          List.generate(
+            tamItens,
+            (index) {
+              final left = calcPosition(context, index);
+              final top = index * 100;
+              pointsWidgets.add(Offset(left + 40, top.toDouble() + 40));
+            },
           );
-        }
-        pointsWidgets.clear();
-        List.generate(
-          tamItens,
-          (index) {
-            final left = calcPosition(context, index);
-            final top = index * 100;
-            pointsWidgets.add(Offset(left + 40, top.toDouble() + 40));
-          },
-        );
-        return SingleChildScrollView(
-          child: Container(
-            height: (tamItens + 1) * 100,
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Stack(
-              children: [
-                Positioned(
-                  child: CustomPaint(
-                    size: Size(
-                      MediaQuery.of(context).size.width,
-                      (tamItens + 1) * 100,
-                    ),
-                    painter: LinesPainter(pointsWidgets),
-                  ),
-                ),
-                ...List.generate(
-                  tamItens,
-                  (index) {
-                    if (index % 3 == 0) {
-                      isLeftFromRight = !isLeftFromRight;
-                    }
-                    final left = calcPosition(context, index);
-                    final top = index * 100;
-                    final currentRoadmap = controller.listClasses[index];
-                    return Positioned(
-                      left: left,
-                      top: top.toDouble(),
-                      child: CircleRoadmap(
-                        index: index + 1,
-                        isViewed: false,
-                        isVideo: currentRoadmap['isVideo'],
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => DialogAboutClass(
-                              title: 'Aula $index',
-                              message: currentRoadmap['description'],
+          return GetBuilder<HomeController>(
+            builder: (_) {
+              return SingleChildScrollView(
+                child: Container(
+                  height: (tamItens + 1) * 100,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        child: CustomPaint(
+                          size: Size(
+                            MediaQuery.of(context).size.width,
+                            (tamItens + 1) * 100,
+                          ),
+                          painter: LinesPainter(pointsWidgets),
+                        ),
+                      ),
+                      ...List.generate(
+                        tamItens,
+                        (index) {
+                          if (index % 3 == 0) {
+                            isLeftFromRight = !isLeftFromRight;
+                          }
+                          final left = calcPosition(context, index);
+                          final top = index * 100;
+                          final currentRoadmap = controller.listClasses[index];
+                          return Positioned(
+                            left: left,
+                            top: top.toDouble(),
+                            child: CircleRoadmap(
+                              index: index + 1,
+                              isViewed: Get.find<HomeController>()
+                                  .listVideoViewers
+                                  .contains(
+                                    currentRoadmap['id'],
+                                  ),
                               isVideo: currentRoadmap['isVideo'],
-                              link: currentRoadmap['link'],
-                              annotations: currentRoadmap['annotations'] ?? '',
-                              index: index,
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => DialogAboutClass(
+                                    title: 'Aula $index',
+                                    uid: currentRoadmap['id'],
+                                    message: currentRoadmap['description'],
+                                    isVideo: currentRoadmap['isVideo'],
+                                    link: currentRoadmap['link'],
+                                    annotations:
+                                        currentRoadmap['annotations'] ?? '',
+                                    index: index,
+                                  ),
+                                );
+                              },
                             ),
                           );
                         },
-                      ),
-                    );
-                  },
-                )
-              ],
-            ),
-          ),
-        );
-      }),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 

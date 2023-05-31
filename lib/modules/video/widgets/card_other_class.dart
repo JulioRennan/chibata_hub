@@ -1,6 +1,8 @@
 import 'package:chibata_hub/core/shared_components/custom_checkbox.dart';
 import 'package:chibata_hub/core/theme/app_colors.dart';
+import 'package:chibata_hub/modules/home/home_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CardOtherClass extends StatelessWidget {
   const CardOtherClass({
@@ -8,10 +10,14 @@ class CardOtherClass extends StatelessWidget {
     required this.index,
     required this.isSelected,
     required this.onTap,
+    required this.uid,
+    required this.isVideo,
   });
   final int index;
   final bool isSelected;
   final void Function()? onTap;
+  final String uid;
+  final bool isVideo;
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -33,9 +39,11 @@ class CardOtherClass extends StatelessWidget {
               child: Row(
                 children: [
                   Image.asset(
-                    "assets/images/icon_video.png",
+                    isVideo
+                        ? "assets/images/icon_video.png"
+                        : "assets/images/icon_article.png",
                     color: AppColors.primaryColor,
-                    height: 50,
+                    height: isVideo ? 50 : 40,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -48,12 +56,22 @@ class CardOtherClass extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Transform.scale(
-                    scale: 1.5,
-                    child: const CustomCheckbox(
-                      intialValue: false,
-                    ),
-                  )
+                  GetBuilder<HomeController>(builder: (context) {
+                    return Transform.scale(
+                      scale: 1.5,
+                      child: CustomCheckbox(
+                        intialValue: Get.find<HomeController>()
+                            .listVideoViewers
+                            .contains(uid),
+                        onChanged: (newValue) {
+                          if (newValue ?? false) {
+                            return Get.find<HomeController>().addViewer(uid);
+                          }
+                          return Get.find<HomeController>().removeViewer(uid);
+                        },
+                      ),
+                    );
+                  })
                 ],
               ),
             ),

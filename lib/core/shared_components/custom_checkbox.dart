@@ -17,7 +17,7 @@ class CustomCheckbox extends StatefulWidget {
 }
 
 class _CustomCheckboxState extends State<CustomCheckbox> {
-  bool value = false;
+  late bool value = widget.intialValue;
   @override
   Widget build(BuildContext context) {
     return Checkbox(

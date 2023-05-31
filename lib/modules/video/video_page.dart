@@ -1,4 +1,5 @@
 import 'package:chibata_hub/core/theme/app_colors.dart';
+import 'package:chibata_hub/modules/courses/article_page.dart';
 import 'package:chibata_hub/modules/home/home_controller.dart';
 import 'package:chibata_hub/modules/video/widgets/card_other_class.dart';
 import 'package:flutter/material.dart';
@@ -108,6 +109,9 @@ class _VideoPageState extends State<VideoPage> {
                                           i++)
                                         CardOtherClass(
                                           index: i,
+                                          uid: controller.listClasses[i]['id'],
+                                          isVideo: controller.listClasses[i]
+                                              ['isVideo'],
                                           isSelected: controller.listClasses[i]
                                                   ['id'] ==
                                               currentVideo['id'],
@@ -116,15 +120,20 @@ class _VideoPageState extends State<VideoPage> {
                                                 controller.listClasses[i];
                                             Navigator.pushReplacement(
                                               context,
-                                              MaterialPageRoute(
-                                                builder: (_) => VideoPage(
+                                              MaterialPageRoute(builder: (_) {
+                                                if (!video['isVideo']) {
+                                                  return ArticlePage(
+                                                    link: video['link'],
+                                                  );
+                                                }
+                                                return VideoPage(
                                                   annotations:
                                                       video['annotations'] ??
                                                           '',
                                                   linkVideo: video['link'],
                                                   index: i,
-                                                ),
-                                              ),
+                                                );
+                                              }),
                                             );
                                           },
                                         )
