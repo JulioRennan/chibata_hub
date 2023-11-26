@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
+      color: AppColors.primaryColor,
       home: Builder(
         builder: (context) {
           if (FirebaseAuth.instance.currentUser == null) {
@@ -33,9 +34,17 @@ class MyApp extends StatelessWidget {
         },
       ),
       theme: ThemeData(
+        colorScheme: const ColorScheme.light(
+          primary: AppColors.primaryColor,
+        ),
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.primaryColor,
           elevation: 0,
+          titleTextStyle: TextStyle(
+            color: Colors.white,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
           iconTheme: IconThemeData(
             size: 30,
             color: Colors.white,
