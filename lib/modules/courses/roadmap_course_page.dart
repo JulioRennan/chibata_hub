@@ -1,3 +1,4 @@
+import 'package:chibata_hub/core/theme/app_colors.dart';
 import 'package:chibata_hub/modules/courses/widgets/dialog_about_class.dart';
 import 'package:chibata_hub/modules/home/home_controller.dart';
 import 'package:chibata_hub/modules/home/widgets/circle_roadmap.dart';
@@ -24,13 +25,38 @@ class _RoadmapCoursePageState extends State<RoadmapCoursePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trilha POO com Java'),
+        title: Text(
+          controller.listAreas.firstWhere(
+            (element) => element['id'] == controller.currentIdArea,
+          )['title'],
+        ),
       ),
       body: Obx(
         () {
           if (controller.isLoading.value) {
             return const Center(
               child: CircularProgressIndicator(),
+            );
+          }
+          if (controller.listClasses.isEmpty) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.search_off_rounded,
+                  size: 150,
+                  color: AppColors.primaryColor,
+                ),
+                Text(
+                  'Não há aulas para esta área ainda...',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 26,
+                    color: AppColors.primaryColor,
+                  ),
+                )
+              ],
             );
           }
           pointsWidgets.clear();
@@ -149,14 +175,8 @@ class LinesPainter extends CustomPainter {
   Paint stokePaint(bool isLeft) {
     const degress45 = 3.14 / 4;
     return Paint()
-      ..color = Colors.black
-      ..strokeWidth = 4
-      ..shader = LinearGradient(
-        colors: const [Colors.black54, Colors.transparent],
-        stops: const [0.5, 0.5],
-        tileMode: TileMode.repeated,
-        transform: GradientRotation(isLeft ? degress45 : -degress45),
-      ).createShader(const Rect.fromLTWH(0, 0, 10, 10))
+      ..color = Colors.black.withOpacity(.2)
+      ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
   }
 

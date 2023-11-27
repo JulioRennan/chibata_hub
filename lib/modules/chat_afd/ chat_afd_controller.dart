@@ -14,7 +14,6 @@ class ChatAFDController extends GetxController {
     final listSteps = <StepAFDInfo>[];
     bool isBreak = false;
     for (var i = 0; i < strinToProcess.length; i++) {
-      log(i.toString());
       final currentStep = getResultByProcess(
         strinToProcess[i],
         i == 0 ? listAFDs.first : listSteps[i - 1].nextStepAFD!,

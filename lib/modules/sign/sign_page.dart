@@ -149,7 +149,8 @@ class SignPage extends StatelessWidget {
                                     SizedBox(width: 10),
                                     Text(
                                       "Entrar com Google",
-                                      style: StyleThemes.button,
+                                      style: StyleThemes.button
+                                          .withColor(Colors.white),
                                     )
                                   ],
                                 ),

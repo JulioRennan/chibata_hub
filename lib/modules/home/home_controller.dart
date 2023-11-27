@@ -16,7 +16,10 @@ class HomeController extends GetxController {
     initVideoListener();
     isLoading.value = true;
     currentIdArea = '';
-    listAreas = (await FirebaseFirestore.instance.collection("areas").get())
+    listAreas = (await FirebaseFirestore.instance
+            .collection("areas")
+            .orderBy('index')
+            .get())
         .docs
         .map(
           (e) => {
@@ -101,6 +104,7 @@ class HomeController extends GetxController {
             .collection('cursos')
             .doc(idCourse)
             .collection('trilha')
+            .orderBy('index')
             .get())
         .docs
         .map(
