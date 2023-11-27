@@ -41,8 +41,7 @@ dependencies:
   dotted_border: ^2.0.0+3
   dotted_line: ^3.1.0
   youtube_player_flutter: ^8.1.2
-  webview_flutter: ^4.2.0
-  webview_flutter_wkwebview: ^3.4.3
+  webview_flutter: ^4.4.2
 
 
 dev_dependencies:

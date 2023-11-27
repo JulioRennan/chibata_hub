@@ -2,6 +2,7 @@ import 'package:chibata_hub/core/shared_components/buttons/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import '../home/home_controller.dart';
 
