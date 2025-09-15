@@ -6,10 +6,7 @@ on:
         type: choice
         required: true
         default: dev
-        options:
-          - alpha
-          - dev
-          - prod
+        options: [alpha, dev, prod]
       need_build_android:
         description: "Build Android?"
         type: boolean
@@ -26,28 +23,31 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
+      NEED_BUILD_ANDROID: ${{ github.event.inputs.need_build_android }}
+      NEED_BUILD_IOS: ${{ github.event.inputs.need_build_ios }}
+      NEED_BUILD_WEB: ${{ github.event.inputs.need_build_web }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show Environment
-        run: echo "Environment: ${{ github.event.inputs.environment }}"
-      - name: Show Build Android
-        run: echo "Build Android: ${{ github.event.inputs.need_build_android }}"
-      - name: Show Build iOS
-        run: echo "Build iOS: ${{ github.event.inputs.need_build_ios }}"
-      - name: Show Build Web
-        run: echo "Build Web: ${{ github.event.inputs.need_build_web }}"
+      - name: Show inputs
+        run: |
+          echo "Environment: $ENVIRONMENT"
+          echo "Build Android: $NEED_BUILD_ANDROID"
+          echo "Build iOS: $NEED_BUILD_IOS"
+          echo "Build Web: $NEED_BUILD_WEB"
 
-      # Exemplos de uso dos booleans (lembrando: são strings "true"/"false")
       - name: Build Android
-        if: ${{ github.event.inputs.need_build_android == 'true' }}
-        run: echo "Rodando build Android…"
+        if: ${{ fromJSON(github.event.inputs.need_build_android) }}
+        run: echo "Rodando build Android..."
 
       - name: Build iOS
-        if: ${{ github.event.inputs.need_build_ios == 'true' }}
-        run: echo "Rodando build iOS…"
+        if: ${{ fromJSON(github.event.inputs.need_build_ios) }}
+        run: echo "Rodando build iOS..."
 
       - name: Build Web
-        if: ${{ github.event.inputs.need_build_web == 'true' }}
-        run: echo "Rodando build Web…"
+        if: ${{ fromJSON(github.event.inputs.need_build_web) }}
+        run: echo "Rodando build Web..."
