@@ -1,0 +1,37 @@
+name: Reusable • Build Android
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+      flavor:
+        type: string
+        required: false
+        default: default
+    secrets:
+      # Declare só os que precisa explicitamente se não usar 'inherit'
+      PLAY_STORE_JSON:
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build Android (${{ inputs.flavor }})
+        run: |
+          ./gradlew clean :app:assembleRelease
+          # ou assemble${{ inputs.flavor }}Release

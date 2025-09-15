@@ -1,0 +1,50 @@
+name: Build Orchestrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Selecione o ambiente"
+        type: choice
+        required: true
+        default: dev
+        options: [alpha, dev, prod]
+
+      need_build_android:
+        description: "Build Android?"
+        type: boolean
+        default: true
+
+      need_build_ios:
+        description: "Build iOS?"
+        type: boolean
+        default: true
+
+      need_build_web:
+        description: "Build Web?"
+        type: boolean
+        default: true
+
+jobs:
+  android:
+    if: ${{ fromJSON(github.event.inputs.need_build_android) }}
+    uses: ./.github/workflows/build-android.yml
+    secrets: inherit # ou mapeie segredos específicos
+    with:
+      environment: ${{ github.event.inputs.environment }}
+      flavor: ${{ github.event.inputs.android_flavor }}
+
+  ios:
+    if: ${{ fromJSON(github.event.inputs.need_build_ios) }}
+    uses: ./.github/workflows/build-ios.yml
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
+      configuration: ${{ github.event.inputs.ios_configuration }}
+
+  web:
+    if: ${{ fromJSON(github.event.inputs.need_build_web) }}
+    uses: ./.github/workflows/build-web.yml
+    secrets: inherit
+    with:
+      environment: ${{ github.event.inputs.environment }}
