@@ -6,14 +6,15 @@ on:
       environment:
         type: string
         required: true
-      flavor:
-        type: string
-        required: false
-        default: default
-    secrets:
-      # Declare só os que precisa explicitamente se não usar 'inherit'
-      PLAY_STORE_JSON:
-        required: false
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Select the environment"
+        type: choice
+        required: true
+        default: dev
+        options: [Alpha, Dev, Prod]
 
 jobs:
   build:
