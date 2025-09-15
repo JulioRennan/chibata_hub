@@ -22,11 +22,11 @@ on:
         type: boolean
         default: true
 
-# precisa pra criar release/tag
 permissions:
-  contents: write
+  contents: write   # necessário para criar tag/release
 
 jobs:
+  # (mantém seus 3 jobs que chamam os reusáveis)
   android:
     if: ${{ fromJSON(github.event.inputs.need_build_android) }}
     uses: ./.github/workflows/build-android.yml
@@ -51,53 +51,85 @@ jobs:
   meta:
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.v.outputs.version }}
-      tag: ${{ steps.v.outputs.tag }}
-      env_name: ${{ steps.v.outputs.env_name }}
+      app_version: ${{ steps.read.outputs.app_version }}
+      build_number: ${{ steps.read.outputs.build_number }}
+      tag: ${{ steps.read.outputs.tag }}
+      env_name: ${{ steps.read.outputs.env_name }}
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      - id: v
+
+      - id: read
+        shell: bash
         run: |
-          VERSION="v1.0.${{ github.run_number }}"
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
+          set -euo pipefail
+          # Lê a linha "version: 1.2.3+45" do pubspec.yaml
+          LINE=$(grep -E '^version:' pubspec.yaml | head -n1 | awk '{print $2}')
+          APP_VERSION="${LINE%%+*}"         # 1.2.3
+          BUILD_NUMBER="${LINE#*+}"         # 45 (se tiver '+')
+          if [[ "$BUILD_NUMBER" == "$LINE" ]]; then
+            # sem '+', usa o run_number como build-number
+            BUILD_NUMBER="${{ github.run_number }}"
+          fi
+          TAG="v${APP_VERSION}"
+
+          echo "app_version=$APP_VERSION"   >> $GITHUB_OUTPUT
+          echo "build_number=$BUILD_NUMBER" >> $GITHUB_OUTPUT
+          echo "tag=$TAG"                   >> $GITHUB_OUTPUT
           echo "env_name=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
 
+          echo "Detected -> version=$APP_VERSION build=$BUILD_NUMBER tag=$TAG"
+
   release:
-    # espera meta e (se existirem) os builds
     needs: [meta, android, ios, web]
     runs-on: ubuntu-latest
+    env:
+      TAG_NAME: ${{ needs.meta.outputs.tag }}
+      APP_VERSION: ${{ needs.meta.outputs.app_version }}
+      ENV_NAME: ${{ needs.meta.outputs.env_name }}
+      IS_PRERELEASE: ${{ needs.meta.outputs.env_name != 'prod' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with: { fetch-depth: 0 }
 
-      # Garante que os caminhos existem e cria o zip do web
-      - name: Preparar assets do release (a partir de lib/)
+      - name: Sanity check tag
         run: |
-          ls -la lib || true
-          # zipa a pasta lib/web -> lib/web.zip (se existir)
-          if [ -d "lib/web" ]; then
-            (cd lib && zip -r web.zip web)
+          echo "TAG_NAME=${TAG_NAME}"
+          test -n "${TAG_NAME}"
+
+      # Empacota e renomeia os arquivos que já estão no repositório (lib/)
+      - name: Preparar assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          # Renomeia se existirem
+          if ls lib/*.aab >/dev/null 2>&1; then
+            for f in lib/*.aab; do
+              cp "$f" "release/$(basename "${f%.aab}")-${APP_VERSION}.aab"
+            done
           fi
-          # mostra o que vamos anexar
-          echo "---- Assets encontrados ----"
-          ls -la lib/*.aab 2>/dev/null || true
-          ls -la lib/*.ipa 2>/dev/null || true
-          ls -la lib/web.zip 2>/dev/null || true
+          if ls lib/*.ipa >/dev/null 2>&1; then
+            for f in lib/*.ipa; do
+              cp "$f" "release/$(basename "${f%.ipa}")-${APP_VERSION}.ipa"
+            done
+          fi
+          # Zipa o web (lib/web) se existir
+          if [ -d "lib/web" ]; then
+            (cd lib && zip -r "../release/web-${APP_VERSION}.zip" web)
+          fi
+          echo "---- Conteúdo de release/ ----"
+          ls -la release || true
 
       - name: Criar Release e anexar assets
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.meta.outputs.tag }}
-          name: Release ${{ needs.meta.outputs.version }} • ${{ needs.meta.outputs.env_name }}
+          token: ${{ github.token }}         # evita "Bad credentials"
+          tag_name: ${{ env.TAG_NAME }}      # usa a tag derivada do pubspec (ex.: v1.2.3)
+          name: Release ${{ env.TAG_NAME }} • ${{ env.ENV_NAME }}
           draft: false
-          prerelease: ${{ needs.meta.outputs.env_name != 'prod' }}
-          files: |
-            lib/*.aab
-            lib/*.ipa
-            lib/web.zip
+          prerelease: ${{ env.IS_PRERELEASE }}
+          generate_release_notes: true
+          files: release/*
           fail_on_unmatched_files: false
-        env:
-          GITHUB_TOKEN: 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
