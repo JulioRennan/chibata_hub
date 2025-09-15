@@ -32,7 +32,6 @@ jobs:
     secrets: inherit # ou mapeie segredos específicos
     with:
       environment: ${{ github.event.inputs.environment }}
-      flavor: ${{ github.event.inputs.android_flavor }}
 
   ios:
     if: ${{ fromJSON(github.event.inputs.need_build_ios) }}
@@ -40,7 +39,6 @@ jobs:
     secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
-      configuration: ${{ github.event.inputs.ios_configuration }}
 
   web:
     if: ${{ fromJSON(github.event.inputs.need_build_web) }}
