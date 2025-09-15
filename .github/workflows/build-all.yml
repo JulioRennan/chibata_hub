@@ -9,27 +9,28 @@ on:
         required: true
         default: dev
         options: [alpha, dev, prod]
-
       need_build_android:
         description: "Build Android?"
         type: boolean
         default: true
-
       need_build_ios:
         description: "Build iOS?"
         type: boolean
         default: true
-
       need_build_web:
         description: "Build Web?"
         type: boolean
         default: true
 
+# precisa pra criar release/tag
+permissions:
+  contents: write
+
 jobs:
   android:
     if: ${{ fromJSON(github.event.inputs.need_build_android) }}
     uses: ./.github/workflows/build-android.yml
-    secrets: inherit # ou mapeie segredos específicos
+    secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
 
@@ -56,17 +57,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { fetch-depth: 0 }
-      # Gere sua versão/tag do jeito que preferir
       - id: v
         run: |
-          # exemplo: v1.0.<run_number> (pode trocar por git tag semântico, etc.)
           VERSION="v1.0.${{ github.run_number }}"
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "tag=${VERSION}" >> $GITHUB_OUTPUT
           echo "env_name=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
 
   release:
-    # roda depois de todos os builds (jobs pulados contam como "skipped", não bloqueiam)
+    # espera meta e (se existirem) os builds
     needs: [meta, android, ios, web]
     runs-on: ubuntu-latest
     steps:
@@ -74,30 +73,21 @@ jobs:
         uses: actions/checkout@v4
         with: { fetch-depth: 0 }
 
-      # Baixa só o que de fato rodou com sucesso
-      - name: Download Android artifact
-        if: ${{ needs.android.result == 'success' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: android-aab
-          path: lib/text.android
+      # Garante que os caminhos existem e cria o zip do web
+      - name: Preparar assets do release (a partir de lib/)
+        run: |
+          ls -la lib || true
+          # zipa a pasta lib/web -> lib/web.zip (se existir)
+          if [ -d "lib/web" ]; then
+            (cd lib && zip -r web.zip web)
+          fi
+          # mostra o que vamos anexar
+          echo "---- Assets encontrados ----"
+          ls -la lib/*.aab 2>/dev/null || true
+          ls -la lib/*.ipa 2>/dev/null || true
+          ls -la lib/web.zip 2>/dev/null || true
 
-      - name: Download iOS artifact
-        if: ${{ needs.ios.result == 'success' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: ios-ipa
-          path: lib/text.ios
-
-      - name: Download Web artifact
-        if: ${{ needs.web.result == 'success' }}
-        uses: actions/download-artifact@v4
-        with:
-          name: web-dist
-          path: lib/text.web
-
-      # Cria a tag + release e anexa os arquivos (aceita faltar alguns)
-      - name: Create GitHub Release and upload assets
+      - name: Criar Release e anexar assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.meta.outputs.tag }}
@@ -105,9 +95,9 @@ jobs:
           draft: false
           prerelease: ${{ needs.meta.outputs.env_name != 'prod' }}
           files: |
-            lib/text.android
-            lib/text.ios
-            lib/text.web
+            lib/*.aab
+            lib/*.ipa
+            lib/web.zip
           fail_on_unmatched_files: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: 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

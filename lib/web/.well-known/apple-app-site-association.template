@@ -1,0 +1,7 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [{ "appID": "${IOS_APP_ID}", "paths": ["/*"] }]
+  },
+  "webcredentials": { "apps": ["${IOS_APP_ID}"] }
+}
