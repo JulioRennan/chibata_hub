@@ -2,7 +2,7 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Selecion o ambiente"
+        description: "Selecione o ambiente"
         type: choice
         required: true
         default: dev
@@ -10,37 +10,44 @@ on:
           - alpha
           - dev
           - prod
-
       need_build_android:
         description: "Build Android?"
         type: boolean
         default: true
-
       need_build_ios:
         description: "Build iOS?"
         type: boolean
         default: true
-
       need_build_web:
         description: "Build Web?"
         type: boolean
         default: true
-
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Show Environment
-        run: echo "Environment: ${{ inputs.environment }}"
-      - name: Show Build Android
-        run: echo "Build Android: ${{ inputs.need_build_android }}"
-      - name: Show Build iOS
-        run: echo "Build iOS: ${{ inputs.need_build_ios }}"
-      - name: Show Build Web
-        run: echo "Build Web: ${{ inputs.need_build_web }}"
-     
+        uses: actions/checkout@v4
 
-     
+      - name: Show Environment
+        run: echo "Environment: ${{ github.event.inputs.environment }}"
+      - name: Show Build Android
+        run: echo "Build Android: ${{ github.event.inputs.need_build_android }}"
+      - name: Show Build iOS
+        run: echo "Build iOS: ${{ github.event.inputs.need_build_ios }}"
+      - name: Show Build Web
+        run: echo "Build Web: ${{ github.event.inputs.need_build_web }}"
+
+      # Exemplos de uso dos booleans (lembrando: são strings "true"/"false")
+      - name: Build Android
+        if: ${{ github.event.inputs.need_build_android == 'true' }}
+        run: echo "Rodando build Android…"
+
+      - name: Build iOS
+        if: ${{ github.event.inputs.need_build_ios == 'true' }}
+        run: echo "Rodando build iOS…"
+
+      - name: Build Web
+        if: ${{ github.event.inputs.need_build_web == 'true' }}
+        run: echo "Rodando build Web…"
