@@ -46,3 +46,68 @@ jobs:
     secrets: inherit
     with:
       environment: ${{ github.event.inputs.environment }}
+
+  meta:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      tag: ${{ steps.v.outputs.tag }}
+      env_name: ${{ steps.v.outputs.env_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      # Gere sua versão/tag do jeito que preferir
+      - id: v
+        run: |
+          # exemplo: v1.0.<run_number> (pode trocar por git tag semântico, etc.)
+          VERSION="v1.0.${{ github.run_number }}"
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=${VERSION}" >> $GITHUB_OUTPUT
+          echo "env_name=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+
+  release:
+    # roda depois de todos os builds (jobs pulados contam como "skipped", não bloqueiam)
+    needs: [meta, android, ios, web]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+
+      # Baixa só o que de fato rodou com sucesso
+      - name: Download Android artifact
+        if: ${{ needs.android.result == 'success' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: android-aab
+          path: lib/text.android
+
+      - name: Download iOS artifact
+        if: ${{ needs.ios.result == 'success' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ios-ipa
+          path: lib/text.ios
+
+      - name: Download Web artifact
+        if: ${{ needs.web.result == 'success' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: lib/text.web
+
+      # Cria a tag + release e anexa os arquivos (aceita faltar alguns)
+      - name: Create GitHub Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.meta.outputs.tag }}
+          name: Release ${{ needs.meta.outputs.version }} • ${{ needs.meta.outputs.env_name }}
+          draft: false
+          prerelease: ${{ needs.meta.outputs.env_name != 'prod' }}
+          files: |
+            lib/text.android
+            lib/text.ios
+            lib/text.web
+          fail_on_unmatched_files: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

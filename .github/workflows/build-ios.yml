@@ -12,21 +12,5 @@ jobs:
     runs-on: macos-latest
     environment: ${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Xcode Version
-        run: xcodebuild -version
-
-      - name: Install CocoaPods
-        run: sudo gem install cocoapods && pod install --project-directory=ios
-        if: ${{ hashFiles('ios/Podfile') != '' }}
-
       - name: Build iOS
-        run: |
-          xcodebuild \
-            -workspace ios/YourApp.xcworkspace \
-            -scheme "${{ inputs.scheme }}" \
-            -configuration "${{ inputs.configuration }}" \
-            -sdk iphoneos \
-            -destination 'generic/platform=iOS' \
-            clean build | xcpretty
+        run: echo "Build iOS "

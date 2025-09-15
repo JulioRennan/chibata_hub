@@ -21,18 +21,5 @@ jobs:
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup JDK
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Cache Gradle
-        uses: gradle/actions/setup-gradle@v3
-
       - name: Build Android (${{ inputs.flavor }})
-        run: |
-          ./gradlew clean :app:assembleRelease
-          # ou assemble${{ inputs.flavor }}Release
+        run: echo "Build Android "
